@@ -7,5 +7,6 @@ urlpatterns = [
 
     # Versão 01 da API
     path('api/v1/', include('clientes.urls')),
-    path('api/v1/', include('servicos.urls'))
+    path('api/v1/', include('servicos.urls')),
+    path('api/v1/', include('agendamentos.urls'))
 ]
