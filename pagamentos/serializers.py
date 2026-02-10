@@ -4,6 +4,9 @@ from pagamentos.models import Pagamento
 
 
 class PagamentoSerializer(serializers.ModelSerializer):
+    '''situacao = serializers.SerializerMethodField(read_only=True)
+    valor_formatado = serializers.SerializerMethodField(read_only=True)'''
+
     class Meta:
         model = Pagamento 
         fields = '__all__'
