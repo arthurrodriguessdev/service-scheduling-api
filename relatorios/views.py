@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum
@@ -6,8 +7,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from pagamentos.models import Pagamento
 from clientes.models import Cliente
+from servicos.models import Servico
 from relatorios.serializers.clientes_ativos import ClientesAtivosSerializer
-from relatorios.serializers.faturamento_mensal import FaturamentoMensalSerializer
+from relatorios.serializers.faturamento_mensal import FaturamentoMensalSerializer, FaturamentoServicoSerializer
 
 
 class RelatoriosViewSet(viewsets.ViewSet):
@@ -49,4 +51,23 @@ class RelatoriosViewSet(viewsets.ViewSet):
             return Response({'message': 'Não houve pagamentos finalizados em nenhum mês.'})
 
         serializer = FaturamentoMensalSerializer(faturamentos_mensais, many=True)
+        return Response(serializer.data)
+    
+
+    # Calcula e retorna o faturamento total por um serviço específico
+    @action(detail=False, methods=['get'], url_path='faturamento/servico/(?P<servico_pk>\d+)', url_name='faturamento_servico')
+    def faturamento_por_servico(self, request, servico_pk=None):
+        servico = get_object_or_404(Servico, pk=servico_pk)
+
+        agendamentos_servico = servico.agendamentos.all()
+        if not agendamentos_servico.exists():
+            return Response({'message': 'Não há registros de agendamentos para o serviço informado.'})
+        
+        faturamento_total = Pagamento.objects.filter(
+            agendamento__in=agendamentos_servico,
+            status='pendente'
+        ).aggregate(faturamento_total=Sum('agendamento__servico__preco'))
+
+
+        serializer = FaturamentoServicoSerializer(faturamento_total, many=False)
         return Response(serializer.data)

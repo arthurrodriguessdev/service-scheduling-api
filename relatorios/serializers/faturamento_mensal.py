@@ -8,3 +8,10 @@ class FaturamentoMensalSerializer(serializers.Serializer):
         max_digits=11,
         decimal_places=2
     )
+
+
+class FaturamentoServicoSerializer(serializers.Serializer):
+    faturamento_total = serializers.DecimalField(
+        max_digits=11,
+        decimal_places=2
+    )
