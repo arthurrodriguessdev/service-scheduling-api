@@ -18,6 +18,7 @@ class Cliente(models.Model):
     data_nascimento = models.DateField(null=True, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     usuario = models.ForeignKey(User, on_delete=models.PROTECT, related_name='clientes', verbose_name='Usuário')
+    ativo = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Cliente'
