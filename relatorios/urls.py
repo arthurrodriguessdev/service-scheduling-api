@@ -3,4 +3,4 @@ from rest_framework.routers import SimpleRouter
 from relatorios import views
 
 router = SimpleRouter()
-router.register('clientes', views.RelatoriosViewSet)
+router.register('', views.RelatoriosViewSet)
