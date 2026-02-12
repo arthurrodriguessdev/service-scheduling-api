@@ -9,7 +9,7 @@ from pagamentos.models import Pagamento
 from clientes.models import Cliente
 from servicos.models import Servico
 from relatorios.serializers.clientes_ativos import ClientesAtivosSerializer
-from relatorios.serializers.faturamento_mensal import FaturamentoMensalSerializer, FaturamentoServicoSerializer
+from relatorios.serializers.faturamento import FaturamentoMensalSerializer, FaturamentoServicoSerializer, FaturamentoMedioSerializer
 
 
 class RelatoriosViewSet(viewsets.ViewSet):
@@ -70,4 +70,22 @@ class RelatoriosViewSet(viewsets.ViewSet):
 
 
         serializer = FaturamentoServicoSerializer(faturamento_total, many=False)
+        return Response(serializer.data)
+    
+    
+    @action(detail=False, methods=['get'], url_path='faturamento/media', url_name='faturamento_medio')
+    def faturamento_medio(self, request):
+        pagamentos_feitos = Pagamento.objects.filter(
+            usuario=self.user_teste,
+            status='pendente'
+        )
+
+        if not pagamentos_feitos.exists():
+            return Response({'message': 'Não há compras concluídas e pagas.'}, status.HTTP_400_BAD_REQUEST)
+        
+        quantidade_vendas = pagamentos_feitos.count()
+        pagamentos_feitos = pagamentos_feitos.aggregate(valor_total=Sum('valor'))
+        media = pagamentos_feitos['valor_total'] / quantidade_vendas
+
+        serializer = FaturamentoMedioSerializer({'media_faturamento': media}, many=False)
         return Response(serializer.data)

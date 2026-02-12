@@ -15,3 +15,10 @@ class FaturamentoServicoSerializer(serializers.Serializer):
         max_digits=11,
         decimal_places=2
     )
+
+
+class FaturamentoMedioSerializer(serializers.Serializer):
+    media_faturamento = serializers.DecimalField(
+        max_digits=11,
+        decimal_places=2
+    )
