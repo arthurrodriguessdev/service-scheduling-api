@@ -13,7 +13,6 @@ from relatorios.serializers.faturamento import FaturamentoMensalSerializer, Fatu
 
 
 class RelatoriosViewSet(viewsets.ViewSet):
-    queryset = Cliente.objects.all()
     user_teste = User.objects.first()
 
     @action(detail=False, methods=['get'], url_path='clientes/ativos', url_name='list_total_clientes_ativos')
@@ -72,7 +71,7 @@ class RelatoriosViewSet(viewsets.ViewSet):
         serializer = FaturamentoServicoSerializer(faturamento_total, many=False)
         return Response(serializer.data)
     
-    
+
     @action(detail=False, methods=['get'], url_path='faturamento/media', url_name='faturamento_medio')
     def faturamento_medio(self, request):
         pagamentos_feitos = Pagamento.objects.filter(
