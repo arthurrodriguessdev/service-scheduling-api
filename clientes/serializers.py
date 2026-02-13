@@ -1,13 +1,15 @@
 from rest_framework import serializers
 from datetime import datetime
 import re
+from django.db.models import Sum
 from clientes.models import Cliente
+from pagamentos.models import Pagamento
 
 
 class ClienteSerializer(serializers.ModelSerializer):
-    '''total_agendamentos = serializers.SerializerMethodField(read_only=True)
+    total_de_agendamentos = serializers.SerializerMethodField(read_only=True)
     total_gasto = serializers.SerializerMethodField(read_only=True)
-    data_ultimo_agendamento = serializers.SerializerMethodField(read_only=True)'''
+    data_ultimo_agendamento = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Cliente
@@ -44,3 +46,24 @@ class ClienteSerializer(serializers.ModelSerializer):
         
         return value
     
+    def get_total_de_agendamentos(self, obj):
+        return obj.agendamentos.count()
+    
+    def get_total_gasto(self, obj):
+        gasto_total_cliente = Pagamento.objects.filter(
+            agendamento__in=obj.agendamentos.all(),
+            status='pendente'
+        ).aggregate(valor_total=Sum('valor'))['valor_total'] or None
+        
+        if gasto_total_cliente is None:
+            return f'O cliente ainda não pagou nenhum agendamento.'
+        
+        return f'R${gasto_total_cliente}'
+    
+    def get_data_ultimo_agendamento(self, obj):
+        agendamento = obj.agendamentos.values_list('data', flat=True).last()
+
+        if not agendamento:
+            return 'O cliente não possui nenhum agendamento.'
+        
+        return agendamento
