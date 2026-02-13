@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from servicos.models import Servico
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from servicos.models import Servico
 
 
 class SevicoSerializer(serializers.ModelSerializer):
-    '''preco_formatado = serializers.SerializerMethodField(read_only=True)
+    preco_formatado = serializers.SerializerMethodField(read_only=True)
     duracao_em_horas = serializers.SerializerMethodField(read_only=True)
-    total_reservas = serializers.SerializerMethodField(read_only=True)'''
+    total_agendamentos_desse_servico = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Servico
@@ -34,3 +34,16 @@ class SevicoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Já existe um serviço com esse nome vinculado ao usuário informado.')
 
         return value
+    
+    def get_preco_formatado(self, obj):
+        return f'R${obj.preco}'
+    
+    def get_duracao_em_horas(self, obj):
+        minutos = obj.duracao_minutos
+        parte_hora = minutos // 60
+        parte_minutos = minutos % 60
+        
+        return f'{parte_hora}h {parte_minutos}m'
+    
+    def get_total_agendamentos_desse_servico(self, obj):
+        return obj.agendamentos.count()
