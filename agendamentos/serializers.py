@@ -7,15 +7,17 @@ from agendamentos.models import Agendamento
 
 
 class AgendamentoSerializer(serializers.ModelSerializer):
-    '''duracao = serializers.SerializerMethodField(read_only=True)
+    # duracao = serializers.SerializerMethodField(read_only=True)
     preco_total = serializers.SerializerMethodField(read_only=True)
     eh_futuro = serializers.SerializerMethodField(read_only=True)
-    eh_hoje = serializers.SerializerMethodField(read_only=True)'''
+    eh_hoje = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Agendamento
         fields = '__all__'
         read_only_fields = ['hora_fim', 'usuario', 'status']
+    
+    data_hoje = datetime.now().today()
     
     def validate(self, attrs):
         servico = attrs.get('servico')
@@ -73,3 +75,21 @@ class AgendamentoSerializer(serializers.ModelSerializer):
 
         instance.hora_fim = (datetime.combine(data, hora_inicio) + timedelta(minutes=servico.duracao_minutos)).time()
         return super().update(instance, validated_data)
+    
+    # def get_duracao(self, obj):
+    #     return datetime(year=0, month=0, day=0, hour=obj.hora_fim) - datetime(year=0, month=0, day=0, hour=obj.hora_fim)
+    
+    def get_preco_total(self, obj):
+        return f'R${obj.servico.preco}'
+    
+    def get_eh_futuro(self, obj):
+        if obj.data > self.data_hoje.date():
+            return True
+    
+        return False
+    
+    def get_eh_hoje(self, obj):
+        if obj.data == self.data_hoje.date():
+            return True
+        
+        return False
