@@ -56,9 +56,9 @@ class ClienteSerializer(serializers.ModelSerializer):
         ).aggregate(valor_total=Sum('valor'))['valor_total'] or None
         
         if gasto_total_cliente is None:
-            return f'O cliente ainda não pagou nenhum agendamento.'
+            return 0
         
-        return f'R${gasto_total_cliente}'
+        return gasto_total_cliente
     
     def get_data_ultimo_agendamento(self, obj):
         agendamento = obj.agendamentos.values_list('data', flat=True).last()
