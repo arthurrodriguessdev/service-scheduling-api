@@ -26,12 +26,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'contas',
+    'rest_framework_simplejwt',
+    'contas', # Referente aos usuários da aplicação
     'clientes',
     'servicos',
     'agendamentos',
     'pagamentos',
     'relatorios',
+    'autenticacao' # Referente à autenticação JWT de endpoints da API
 ]
 
 MIDDLEWARE = [
@@ -113,3 +115,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Autenticação Json Web Token (setar para o django a classe de autenticação principal do projeto)
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
