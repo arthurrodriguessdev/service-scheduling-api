@@ -7,7 +7,7 @@ from agendamentos.models import Agendamento
 
 
 class AgendamentoSerializer(serializers.ModelSerializer):
-    # duracao = serializers.SerializerMethodField(read_only=True)
+    duracao = serializers.SerializerMethodField(read_only=True)
     preco_total = serializers.SerializerMethodField(read_only=True)
     eh_futuro = serializers.SerializerMethodField(read_only=True)
     eh_hoje = serializers.SerializerMethodField(read_only=True)
@@ -76,8 +76,31 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         instance.hora_fim = (datetime.combine(data, hora_inicio) + timedelta(minutes=servico.duracao_minutos)).time()
         return super().update(instance, validated_data)
     
-    # def get_duracao(self, obj):
-    #     return datetime(year=0, month=0, day=0, hour=obj.hora_fim) - datetime(year=0, month=0, day=0, hour=obj.hora_fim)
+    def get_duracao(self, obj):
+        data_hoje_hora_inicio = datetime.combine(self.data_hoje.date(), obj.hora_inicio)
+        data_hoje_hora_fim = datetime.combine(self.data_hoje.date(), obj.hora_fim)
+
+        # data_hoje_hora_fim recebe o combine today + 1 dia para regulatizar o cálculo
+        if obj.hora_inicio > obj.hora_fim:
+            data_hoje_hora_fim = datetime.combine(self.data_hoje.date() + timedelta(days=1), obj.hora_fim)
+
+        duracao = str(data_hoje_hora_fim - data_hoje_hora_inicio)
+        horas_pm = list()
+        
+        contador = 10
+        while contador <= 23:
+            horas_pm.append(str(contador))
+            contador += 1
+        
+        hora = duracao[0]
+        minutos = duracao[2:4]
+
+        # Se a hora tiver mais de 2 dígitos, pega uma parte mais adiantada da string
+        if duracao[0] in horas_pm or duracao[0:2] in horas_pm:
+            hora = duracao[0:2]
+            minutos = duracao[3:5]
+        
+        return f'{hora}h {minutos}m'
     
     def get_preco_total(self, obj):
         return f'R${obj.servico.preco}'
