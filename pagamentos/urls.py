@@ -1,5 +1,10 @@
 from django.urls import path
+from rest_framework import routers
+from rest_framework.routers import SimpleRouter
 from pagamentos import views
+
+router = SimpleRouter()
+router.register('', views.GerenciarPagamentos, basename='pagamentos')
 
 
 urlpatterns = [

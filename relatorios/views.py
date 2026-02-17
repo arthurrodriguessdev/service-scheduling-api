@@ -40,7 +40,7 @@ class RelatoriosViewSet(viewsets.ViewSet):
         # faturamento_mensal > equivalente ao GRUPO relacionado por mes_ano
         faturamentos_mensais = Pagamento.objects.filter(
             agendamento__in = agendamentos,
-            status = 'pendente'
+            status = 'pago'
         
         ).annotate(mes_ano=TruncMonth('agendamento__data')
         ).values('mes_ano').annotate(faturamento_mensal=Sum('valor')
@@ -64,7 +64,7 @@ class RelatoriosViewSet(viewsets.ViewSet):
         
         faturamento_total = Pagamento.objects.filter(
             agendamento__in=agendamentos_servico,
-            status='pendente'
+            status='pago'
         ).aggregate(faturamento_total=Sum('agendamento__servico__preco'))
 
 
@@ -76,7 +76,7 @@ class RelatoriosViewSet(viewsets.ViewSet):
     def faturamento_medio(self, request):
         pagamentos_feitos = Pagamento.objects.filter(
             usuario=self.user_teste,
-            status='pendente'
+            status='pago'
         )
 
         if not pagamentos_feitos.exists():

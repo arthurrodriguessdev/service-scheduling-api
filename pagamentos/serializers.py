@@ -4,8 +4,7 @@ from pagamentos.models import Pagamento
 
 
 class PagamentoSerializer(serializers.ModelSerializer):
-    '''situacao = serializers.SerializerMethodField(read_only=True)
-    valor_formatado = serializers.SerializerMethodField(read_only=True)'''
+    valor_formatado = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Pagamento 
@@ -15,8 +14,15 @@ class PagamentoSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         valor_cobrado = attrs.get('valor')
         agendamento = attrs.get('agendamento')
+
+        # Se o agendamento já tiver um pagamento criado sem finalizar, retorna erro
+        if Pagamento.objects.filter(agendamento=agendamento, status='pendente').exists():
+            raise serializers.ValidationError(
+                {'agendamento': 'Já existe um pagamento pendente criado para esse agendamento. Finalize ou cancele.'}
+            )
         
         valor_servico = agendamento.servico.preco
+
         if not valor_cobrado == valor_servico:
             raise serializers.ValidationError(
                 {'valor': 'O valor cobrado está diferente do preço do serviço agendado.'}
@@ -29,6 +35,9 @@ class PagamentoSerializer(serializers.ModelSerializer):
             )
         
         return attrs
+    
+    def get_valor_formatado(self, obj):
+        return f'R${obj.valor}'
     
     def create(self, validated_data):
         user_teste = User.objects.first()

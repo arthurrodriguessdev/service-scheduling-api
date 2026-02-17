@@ -52,7 +52,7 @@ class ClienteSerializer(serializers.ModelSerializer):
     def get_total_gasto(self, obj):
         gasto_total_cliente = Pagamento.objects.filter(
             agendamento__in=obj.agendamentos.all(),
-            status='pendente'
+            status='pago'
         ).aggregate(valor_total=Sum('valor'))['valor_total'] or None
         
         if gasto_total_cliente is None:
