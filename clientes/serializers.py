@@ -14,6 +14,7 @@ class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
         fields = '__all__'
+        read_only_fields = ['usuario']
     
     def validate_email(self, value):
         email_informado = value
@@ -67,3 +68,7 @@ class ClienteSerializer(serializers.ModelSerializer):
             return 'O cliente não possui nenhum agendamento.'
         
         return agendamento
+    
+    def create(self, validated_data):
+        validated_data['usuario'] = self.context['request'].user
+        return super().create(validated_data)

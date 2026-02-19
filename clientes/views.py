@@ -10,6 +10,8 @@ class CriarListarClientes(generics.ListCreateAPIView):
     serializer_class = ClienteSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        return self.queryset.filter(usuario=self.request.user)
 
 class DetalharAtualizarDeletarClientes(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cliente.objects.all()

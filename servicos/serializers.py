@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
 from servicos.models import Servico
-
-User = get_user_model()
+from contas.models import Usuario
 
 
 class SevicoSerializer(serializers.ModelSerializer):
@@ -14,6 +12,7 @@ class SevicoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servico
         fields = '__all__'
+        read_only_fields = ['usuario']
 
     def validate_preco(self, value):
         if not value > 0:
@@ -26,7 +25,7 @@ class SevicoSerializer(serializers.ModelSerializer):
         return value
     
     def validate_nome(self, value):
-        usuario = get_object_or_404(User, pk=self.initial_data.get('usuario'))
+        usuario = get_object_or_404(Usuario, pk=self.context['request'].user.pk)
         queryset = usuario.servicos.filter(nome=value)
 
         if self.instance:
@@ -49,3 +48,7 @@ class SevicoSerializer(serializers.ModelSerializer):
     
     def get_total_agendamentos_desse_servico(self, obj):
         return obj.agendamentos.count()
+    
+    def create(self, validated_data):
+        validated_data['usuario'] = self.context['request'].user
+        return super().create(validated_data)

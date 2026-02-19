@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum
 from rest_framework import viewsets, status
@@ -11,18 +10,11 @@ from servicos.models import Servico
 from relatorios.serializers.clientes_ativos import ClientesAtivosSerializer
 from relatorios.serializers.faturamento import FaturamentoMensalSerializer, FaturamentoServicoSerializer, FaturamentoMedioSerializer
 
-User = get_user_model()
-
 
 class RelatoriosViewSet(viewsets.ViewSet):
-    user_teste = User.objects.first()
-
     @action(detail=False, methods=['get'], url_path='clientes/ativos', url_name='list_total_clientes_ativos')
     def total_clientes_ativos(self, request):
-        # usuario = request.user 
-
-        # Setado APENAS para testes
-        clientes_ativos = self.user_teste.clientes.filter(ativo=True)
+        clientes_ativos = self.request.user.clientes.filter(ativo=True)
 
         if not clientes_ativos.exists():
             return Response({'message': 'Não foram encontrados clientes ativos.'}, status.HTTP_400_BAD_REQUEST)
@@ -37,7 +29,7 @@ class RelatoriosViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['get'], url_path='faturamento/mensal', url_name='list_faturamento_mensal')
     def faturamento_mensal(self, request):
-        agendamentos = self.user_teste.agendamentos.all()
+        agendamentos = self.request.user.agendamentos.all()
 
         # faturamento_mensal > equivalente ao GRUPO relacionado por mes_ano
         faturamentos_mensais = Pagamento.objects.filter(
@@ -77,7 +69,7 @@ class RelatoriosViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'], url_path='faturamento/media', url_name='faturamento_medio')
     def faturamento_medio(self, request):
         pagamentos_feitos = Pagamento.objects.filter(
-            usuario=self.user_teste,
+            usuario=self.request.user,
             status='pago'
         )
 

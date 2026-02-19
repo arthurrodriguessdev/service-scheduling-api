@@ -10,6 +10,9 @@ class CriarListarServicos(generics.ListCreateAPIView):
     serializer_class = SevicoSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        return self.queryset.filter(usuario=self.request.user)
+
 
 class DetalharAtualizarDeletarServicos(generics.RetrieveUpdateDestroyAPIView):
     queryset = Servico.objects.all()

@@ -16,6 +16,9 @@ class CriarListarPagamentos(generics.ListCreateAPIView):
     serializer_class = PagamentoSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        return self.queryset.filter(usuario=self.request.user)
+
 
 class DetalharAtualizarDeletarPagamentos(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pagamento.objects.all()

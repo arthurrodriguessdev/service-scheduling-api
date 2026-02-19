@@ -60,12 +60,10 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         servico = validated_data['servico']
         hora_inicio = validated_data['hora_inicio']
         data = validated_data['data']
-    
-        user_test = self.context['request'].user
         
         # A hora final é a hora inicial + tempo de duração do serviço
         validated_data['hora_fim'] = (datetime.combine(data, hora_inicio) + timedelta(minutes=servico.duracao_minutos)).time()
-        validated_data['usuario'] = user_test
+        validated_data['usuario'] = self.context['request'].user
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
