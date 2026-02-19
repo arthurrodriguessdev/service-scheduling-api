@@ -1,3 +1,5 @@
 from django.contrib import admin
+from contas.models import Usuario
 
-# Register your models here.
+
+admin.site.register(Usuario)

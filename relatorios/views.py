@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum
 from rest_framework import viewsets, status
@@ -10,6 +10,8 @@ from clientes.models import Cliente
 from servicos.models import Servico
 from relatorios.serializers.clientes_ativos import ClientesAtivosSerializer
 from relatorios.serializers.faturamento import FaturamentoMensalSerializer, FaturamentoServicoSerializer, FaturamentoMedioSerializer
+
+User = get_user_model()
 
 
 class RelatoriosViewSet(viewsets.ViewSet):

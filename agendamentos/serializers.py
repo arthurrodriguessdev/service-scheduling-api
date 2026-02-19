@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 from servicos.models import Servico
 from agendamentos.models import Agendamento
 
+User = get_user_model()
 
 class AgendamentoSerializer(serializers.ModelSerializer):
     duracao = serializers.SerializerMethodField(read_only=True)
@@ -24,9 +25,8 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         cliente = attrs.get('cliente')
         data_agendamento = attrs.get('data')
         hora_inicio = attrs.get('hora_inicio')
-        usuario = self.context['request'].user
 
-        user_test = User.objects.first()
+        user_test = self.context['request'].user
 
         if not all([servico, cliente, data_agendamento, hora_inicio]):
             return attrs
@@ -60,8 +60,8 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         servico = validated_data['servico']
         hora_inicio = validated_data['hora_inicio']
         data = validated_data['data']
-
-        user_test = User.objects.first()
+    
+        user_test = self.context['request'].user
         
         # A hora final é a hora inicial + tempo de duração do serviço
         validated_data['hora_fim'] = (datetime.combine(data, hora_inicio) + timedelta(minutes=servico.duracao_minutos)).time()

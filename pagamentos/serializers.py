@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from pagamentos.models import Pagamento
+
+User = get_user_model()
 
 
 class PagamentoSerializer(serializers.ModelSerializer):
@@ -40,7 +42,7 @@ class PagamentoSerializer(serializers.ModelSerializer):
         return f'R${obj.valor}'
     
     def create(self, validated_data):
-        user_teste = User.objects.first()
+        user_teste = self.context['request'].user
         validated_data['usuario'] = user_teste
 
         return super().create(validated_data)

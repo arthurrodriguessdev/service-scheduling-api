@@ -72,7 +72,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'service_scheduling',
+        'NAME': 'agendamentos_testes',
         'USER': 'postgres',
         'PASSWORD': '1801',
         'HOST': 'localhost'
@@ -97,6 +97,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTH_USER_MODEL = 'contas.Usuario'
 
 
 # Internationalization
