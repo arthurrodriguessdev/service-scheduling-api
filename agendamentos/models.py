@@ -1,9 +1,7 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from servicos.models import Servico
 from clientes.models import Cliente
-
-User = get_user_model()
+from contas.models import Usuario
 
 
 class Agendamento(models.Model):
@@ -24,7 +22,7 @@ class Agendamento(models.Model):
         related_name='agendamentos'
     )
     usuario = models.ForeignKey(
-        User, 
+        Usuario, 
         on_delete=models.PROTECT, 
         related_name='agendamentos'
     )

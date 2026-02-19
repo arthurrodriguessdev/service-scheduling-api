@@ -1,11 +1,7 @@
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
-from servicos.models import Servico
 from agendamentos.models import Agendamento
 
-User = get_user_model()
 
 class AgendamentoSerializer(serializers.ModelSerializer):
     duracao = serializers.SerializerMethodField(read_only=True)
@@ -25,17 +21,19 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         cliente = attrs.get('cliente')
         data_agendamento = attrs.get('data')
         hora_inicio = attrs.get('hora_inicio')
-
-        user_test = self.context['request'].user
+        usuario = self.context['request'].user
 
         if not all([servico, cliente, data_agendamento, hora_inicio]):
             return attrs
 
+        if servico.usuario.id != usuario.id or cliente.usuario.id != usuario.id:
+            raise serializers.ValidationError({'message': 'O agendamento só é permitido com os serviços e clientes cadastrados pelo usuário logado'})
+        
         if not servico.usuario.id == cliente.usuario.id:
-            raise serializers.ValidationError('O serviço e o cliente devem pertencer ao mesmo usuário.')
+            raise serializers.ValidationError({'message': 'O serviço e o cliente devem pertencer ao mesmo usuário.'})
         
         hora_fim = (datetime.combine(data_agendamento, hora_inicio) + timedelta(minutes=servico.duracao_minutos)).time()
-        conflitos = user_test.agendamentos.filter(
+        conflitos = usuario.agendamentos.filter(
             status='agendado', 
             data=data_agendamento,
             hora_inicio__lte=hora_fim,
