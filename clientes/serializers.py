@@ -18,10 +18,10 @@ class ClienteSerializer(serializers.ModelSerializer):
     
     def validate_email(self, value):
         email_informado = value
-        queryset =  Cliente.objects.filter(email=email_informado)
+        queryset =  self.context['request'].user.clientes.filter(email=email_informado)
 
         if self.instance:
-            queryset.exclude(pk=self.instance.pk)
+            queryset = queryset.exclude(pk=self.instance.pk)
         
         if queryset.exists():
             raise serializers.ValidationError('Já existe um cliente cadastrado com esse e-mail.')
@@ -41,6 +41,13 @@ class ClienteSerializer(serializers.ModelSerializer):
     
     def validate_telefone(self, value):
         padrao_aceito_telefone = re.compile(r'^\d+$')
+        queryset = self.context['request'].user.clientes.filter(telefone=value)
+
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            raise serializers.ValidationError('Já existe um cliente cadastrado com este número de telefone.')
 
         if not padrao_aceito_telefone.fullmatch(value):
             raise serializers.ValidationError('O número de telefone não está no padrão correto. Padrão aceito: DDDNXXXXXXXX')
