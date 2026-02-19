@@ -1,7 +1,5 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from contas.models import Usuario
 
 
 class Servico(models.Model):
@@ -16,8 +14,8 @@ class Servico(models.Model):
     )
 
     duracao_minutos = models.IntegerField(verbose_name='Duração em minutos')
-    esta_ativo = models.BooleanField(verbose_name='Esse serviço está ativo?')
-    usuario = models.ForeignKey(User, on_delete=models.PROTECT, related_name='servicos')
+    esta_ativo = models.BooleanField(verbose_name='Esse serviço está ativo?', default=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT, related_name='servicos')
 
     def __str__(self):
         return f'{self.nome} ({self.duracao_minutos})'
