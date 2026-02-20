@@ -1,8 +1,6 @@
 from django.db import models
 from agendamentos.models import Agendamento
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from contas.models import Usuario
 
 
 class Pagamento(models.Model):
@@ -25,7 +23,7 @@ class Pagamento(models.Model):
         decimal_places=2
     )
     status  = models.CharField(choices=STATUS_PAGAMENTO_CHOICES, default='pendente')
-    usuario = models.ForeignKey(User, on_delete=models.PROTECT, related_name='pagamentos')
+    usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT, related_name='pagamentos')
 
     def __str__(self):
         return f'Pagamento: {self.agendamento}'

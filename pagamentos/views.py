@@ -9,6 +9,7 @@ from datetime import datetime as dt
 from pagamentos.serializers import PagamentoSerializer
 from pagamentos.models import Pagamento
 from agendamentos.models import Agendamento
+from utils.utils import filtrar_registros_usuario
 
 
 class CriarListarPagamentos(generics.ListCreateAPIView):
@@ -25,13 +26,16 @@ class DetalharAtualizarDeletarPagamentos(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PagamentoSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        return filtrar_registros_usuario(self.queryset, self.request.user)
+        
 
 class GerenciarPagamentos(viewsets.ViewSet):
     @action(methods=['post'], detail=False, url_path='pagar/agendamento/(?P<agendamento_pk>\d+)', url_name='pagar-agendamento')
     def pagar_agendamento(self, request, agendamento_pk):
         agendamento = get_object_or_404(Agendamento, pk=agendamento_pk)
 
-        # Atualiza o status e a hora do pagamento
+        # Atualiza o status, hora do pagamento e atualiza o status do agendamento (vai para finalizado)
         try:
             pagamento_pendente = Pagamento.objects.get(
                 status='pendente',
@@ -40,6 +44,7 @@ class GerenciarPagamentos(viewsets.ViewSet):
 
             pagamento_pendente.pago_em=dt.now()
             pagamento_pendente.status = 'pago'
+            agendamento.status = 'finalizado'
             pagamento_pendente.save()
 
         except:

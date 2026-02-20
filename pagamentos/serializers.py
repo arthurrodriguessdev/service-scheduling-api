@@ -13,15 +13,25 @@ class PagamentoSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         valor_cobrado = attrs.get('valor')
         agendamento = attrs.get('agendamento')
+        usuario = self.context['request'].user
+
+        # Não deixa um usuário criar pagamentos para agendamentos de outros
+        if not usuario.agendamentos.filter(pk=agendamento.pk).exists():
+            raise serializers.ValidationError(
+                {'agendamento': 'Não é possível gerar pagamentos para agendamentos que não foram feitos pelo usuário logado.'}
+            )
 
         # Se o agendamento já tiver um pagamento criado sem finalizar, retorna erro
-        if Pagamento.objects.filter(agendamento=agendamento, status='pendente').exists():
+        queryset = Pagamento.objects.filter(agendamento=agendamento, status='pendente')
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
             raise serializers.ValidationError(
-                {'agendamento': 'Já existe um pagamento pendente criado para esse agendamento. Finalize ou cancele.'}
+                {'agendamento': 'Já existe um pagamento pendente criado para esse agendamento. Finalize ou cancele primeiro.'}
             )
         
         valor_servico = agendamento.servico.preco
-
         if not valor_cobrado == valor_servico:
             raise serializers.ValidationError(
                 {'valor': 'O valor cobrado está diferente do preço do serviço agendado.'}
